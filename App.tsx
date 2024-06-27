@@ -1,118 +1,241 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useState, useEffect } from 'react'
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+    SafeAreaView,
+    Text,
+    Image,
+    Button,
+    AppState,
+    View,
+    FlatList,
+    ScrollView,
+} from 'react-native'
+import RNAndroidNotificationListener from 'react-native-android-notification-listener';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from './styles';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+let interval: any = null
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+interface INotificationProps {
+    time: string
+    app: string
+    title: string
+    titleBig: string
+    text: string
+    subText: string
+    summaryText: string
+    bigText: string
+    audioContentsURI: string
+    imageBackgroundURI: string
+    extraInfoText: string
+    icon: string
+    image: string
+    iconLarge: string
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+const Notification: React.FC<INotificationProps> = ({
+    time,
+    app,
+    title,
+    titleBig,
+    text,
+    subText,
+    summaryText,
+    bigText,
+    audioContentsURI,
+    imageBackgroundURI,
+    extraInfoText,
+    icon,
+    image,
+    iconLarge,
+}) => {
+    return (
+        <View style={styles.notificationWrapper}>
+            <View style={styles.notification}>
+                <View style={styles.imagesWrapper}>
+                    {!!icon && (
+                        <View style={styles.notificationIconWrapper}>
+                            <Image
+                                source={{ uri: icon }}
+                                style={styles.notificationIcon}
+                            />
+                        </View>
+                    )}
+                    {!!image && (
+                        <View style={styles.notificationImageWrapper}>
+                            <Image
+                                source={{ uri: image }}
+                                style={styles.notificationImage}
+                            />
+                        </View>
+                    )}
+                    {!!iconLarge && (
+                        <View style={styles.notificationImageWrapper}>
+                            <Image
+                                source={{ uri: iconLarge }}
+                                style={styles.notificationImage}
+                            />
+                        </View>
+                    )}
+                </View>
+                <View style={styles.notificationInfoWrapper}>
+                    <Text style={styles.textInfo}>{`app: ${app}`}</Text>
+                    <Text style={styles.textInfo}>{`title: ${title}`}</Text>
+                    <Text style={styles.textInfo}>{`text: ${text}`}</Text>
+                    {!!time && (
+                        <Text style={styles.textInfo}>{`time: ${time}`}</Text>
+                    )}
+                    {!!titleBig && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`titleBig: ${titleBig}`}</Text>
+                    )}
+                    {!!subText && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`subText: ${subText}`}</Text>
+                    )}
+                    {!!summaryText && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`summaryText: ${summaryText}`}</Text>
+                    )}
+                    {!!bigText && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`bigText: ${bigText}`}</Text>
+                    )}
+                    {!!audioContentsURI && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`audioContentsURI: ${audioContentsURI}`}</Text>
+                    )}
+                    {!!imageBackgroundURI && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`imageBackgroundURI: ${imageBackgroundURI}`}</Text>
+                    )}
+                    {!!extraInfoText && (
+                        <Text
+                            style={
+                                styles.textInfo
+                            }>{`extraInfoText: ${extraInfoText}`}</Text>
+                    )}
+                </View>
+            </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    )
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+function App() {
+    const [hasPermission, setHasPermission] = useState(false)
+    const [lastNotification, setLastNotification] = useState<any>(null)
 
-export default App;
+    const handleOnPressPermissionButton = async () => {
+        /**
+         * Open the notification settings so the user
+         * so the user can enable it
+         */
+        RNAndroidNotificationListener.requestPermission()
+    }
+
+    const handleAppStateChange = async (
+        nextAppState: string,
+        force = false
+    ) => {
+        if (nextAppState === 'active' || force) {
+            const status =
+                await RNAndroidNotificationListener.getPermissionStatus()
+            setHasPermission(status !== 'denied')
+        }
+    }
+
+    const handleCheckNotificationInterval = async () => {
+        const lastStoredNotification = await AsyncStorage.getItem(
+            '@lastNotification'
+        )
+
+        if (lastStoredNotification) {
+            /**
+             * As the notification is a JSON string,
+             * here I just parse it
+             */
+            setLastNotification(JSON.parse(lastStoredNotification))
+        }
+    }
+
+    useEffect(() => {
+        clearInterval(interval)
+
+        /**
+         * Just setting a interval to check if
+         * there is a notification in AsyncStorage
+         * so I can show it in the application
+         */
+        interval = setInterval(handleCheckNotificationInterval, 3000)
+
+        const listener = AppState.addEventListener(
+            'change',
+            handleAppStateChange
+        )
+
+        handleAppStateChange('', true)
+
+        return () => {
+            clearInterval(interval)
+            listener.remove()
+        }
+    }, [])
+
+    const hasGroupedMessages =
+        lastNotification &&
+        lastNotification.groupedMessages &&
+        lastNotification.groupedMessages.length > 0
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.buttonWrapper}>
+                <Text
+                    style={[
+                        styles.permissionStatus,
+                        { color: hasPermission ? 'green' : 'red' },
+                    ]}>
+                    {hasPermission
+                        ? 'Allowed to handle notifications'
+                        : 'NOT allowed to handle notifications'}
+                </Text>
+                <Button
+                    title='Open Configuration'
+                    onPress={handleOnPressPermissionButton}
+                    disabled={hasPermission}
+                />
+            </View>
+            <View style={styles.notificationsWrapper}>
+                {lastNotification && !hasGroupedMessages && (
+                    <ScrollView style={styles.scrollView}>
+                        <Notification {...lastNotification} />
+                    </ScrollView>
+                )}
+                {lastNotification && hasGroupedMessages && (
+                    <FlatList
+                        data={lastNotification.groupedMessages}
+                        keyExtractor={(_, index) => index.toString()}
+                        renderItem={({ item }) => (
+                            <Notification
+                                app={lastNotification.app}
+                                {...item}
+                            />
+                        )}
+                    />
+                )}
+            </View>
+        </SafeAreaView>
+    )
+}
+
+export default App
