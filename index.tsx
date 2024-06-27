@@ -1,10 +1,10 @@
 import { AppRegistry } from 'react-native'
 import { RNAndroidNotificationListenerHeadlessJsName } from 'react-native-android-notification-listener'
 
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
 import { name as appName } from './app.json'
 import App from './App'
+
+import 'react-native-gesture-handler';
 
 /**
  * Note that this method MUST return a Promise.
@@ -34,11 +34,36 @@ const headlessNotificationListener = async ({ notification }: any) => {
      */
 
     if (notification) {
-        /**
-         * Here you could store the notifications in a external API.
-         * I'm using AsyncStorage here as an example.
-         */
-        await AsyncStorage.setItem('@lastNotification', notification)
+        const json = JSON.parse(notification);
+
+        const data = {
+            name: json.title,
+            contents: json.text,
+            cash: 0,
+            billType: 'deposit',
+            createdAt: "2024-06-27T15:03:45",
+            bankNumber: '1234',
+            bankCode: '1234',
+        };
+
+        try {
+            const response = await fetch('https://alert.klr.kr/api/v1/alerts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if(!response.ok){
+                throw new Error('Network response was not ok');
+            }
+            
+            console.log('Notification successfully sent to server');
+
+        } catch (error) {
+            console.error('Failed to send notification to server:', error);
+        }
     }
 }
 
