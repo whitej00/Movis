@@ -11,5 +11,4 @@ function mergeRefs<T>(...refs: ForwardedRef<T>[]) {
     })
   }
 }
-
 export {mergeRefs};
